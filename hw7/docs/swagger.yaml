@@ -1,0 +1,155 @@
+definitions:
+  dto.Good:
+    properties:
+      desc:
+        type: string
+      id:
+        type: string
+      measure_unit:
+        $ref: '#/definitions/dto.MeasureUnit'
+      name:
+        type: string
+      price:
+        type: integer
+      stock_quantity:
+        type: integer
+    required:
+    - desc
+    - measure_unit
+    - name
+    - price
+    type: object
+  dto.MeasureUnit:
+    properties:
+      id:
+        type: string
+      name:
+        enum:
+        - METER
+        - KILOGRAM
+        - LITER
+        - PIECE
+        type: string
+    required:
+    - id
+    - name
+    type: object
+  response.Body:
+    properties:
+      message:
+        type: string
+    type: object
+  response.IDResponse:
+    properties:
+      id:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /goods:
+    get:
+      description: Возвращает список всех товаров
+      operationId: get-all-goods
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.Good'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Body'
+      summary: Получение списка товаров
+      tags:
+      - goods
+    post:
+      description: Добавление товара
+      operationId: add-good
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.IDResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Body'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Body'
+      summary: Добавление товара
+      tags:
+      - goods
+  /goods/{good_id}:
+    delete:
+      description: Удаление товара по его айди
+      operationId: delete-good
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Body'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Body'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Body'
+      summary: Удаление товара по его айди
+      tags:
+      - goods
+    get:
+      description: Возвращает товар по его айди
+      operationId: get-good-by-id
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Good'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Body'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Body'
+      summary: Получение товара по его айди
+      tags:
+      - goods
+    put:
+      description: Обновление данных о товаре
+      operationId: update-good
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Body'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Body'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Body'
+      summary: Обновление данных о товаре
+      tags:
+      - goods
+swagger: "2.0"

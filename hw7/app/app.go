@@ -9,6 +9,7 @@ import (
 	"ecom/internal/service"
 	"ecom/internal/transport/rest"
 	"github.com/go-playground/validator/v10"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 const (
@@ -41,6 +42,7 @@ func newServeMux(goodHandler *rest.GoodHandler) *http.ServeMux {
 	mux.HandleFunc("POST /goods", goodHandler.AddGood)
 	mux.HandleFunc("PUT /goods/{good_id}", goodHandler.UpdateGood)
 	mux.HandleFunc("DELETE /goods/{good_id}", goodHandler.DeleteGoodByID)
+	mux.Handle("GET /docs/", httpSwagger.WrapHandler)
 
 	return mux
 }

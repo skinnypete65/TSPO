@@ -35,6 +35,16 @@ func NewGoodHandler(
 	}
 }
 
+// GetAllGoods docs
+//
+//	@Summary		Получение списка товаров
+//	@Tags			goods
+//	@Description	Возвращает список всех товаров
+//	@ID				get-all-goods
+//	@Produce		json
+//	@Success		200	{object}	[]dto.Good
+//	@Failure		500	{object}	response.Body
+//	@Router			/goods [get]
 func (h *GoodHandler) GetAllGoods(w http.ResponseWriter, r *http.Request) {
 	goods, err := h.goodService.GetAllGoods()
 
@@ -52,6 +62,17 @@ func (h *GoodHandler) GetAllGoods(w http.ResponseWriter, r *http.Request) {
 	response.WriteResponse(w, http.StatusOK, goodsBytes)
 }
 
+// GetGoodByID docs
+//
+//	@Summary		Получение товара по его айди
+//	@Tags			goods
+//	@Description	Возвращает товар по его айди
+//	@ID				get-good-by-id
+//	@Produce		json
+//	@Success		200	{object}	dto.Good
+//	@Failure		400	{object}	response.Body
+//	@Failure		500	{object}	response.Body
+//	@Router			/goods/{good_id} [get]
 func (h *GoodHandler) GetGoodByID(w http.ResponseWriter, r *http.Request) {
 	goodID := r.PathValue(goodIDKey)
 	if goodID == "" {
@@ -79,6 +100,17 @@ func (h *GoodHandler) GetGoodByID(w http.ResponseWriter, r *http.Request) {
 	response.WriteResponse(w, http.StatusOK, goodBytes)
 }
 
+// AddGood docs
+//
+//	@Summary		Добавление товара
+//	@Tags			goods
+//	@Description	Добавление товара
+//	@ID				add-good
+//	@Produce		json
+//	@Success		200	{object}	response.IDResponse
+//	@Failure		400	{object}	response.Body
+//	@Failure		500	{object}	response.Body
+//	@Router			/goods [post]
 func (h *GoodHandler) AddGood(w http.ResponseWriter, r *http.Request) {
 	var good dto.Good
 	err := json.NewDecoder(r.Body).Decode(&good)
@@ -102,6 +134,17 @@ func (h *GoodHandler) AddGood(w http.ResponseWriter, r *http.Request) {
 	response.IdResponse(w, id)
 }
 
+// UpdateGood docs
+//
+//	@Summary		Обновление данных о товаре
+//	@Tags			goods
+//	@Description	Обновление данных о товаре
+//	@ID				update-good
+//	@Produce		json
+//	@Success		200	{object}	response.Body
+//	@Failure		400	{object}	response.Body
+//	@Failure		500	{object}	response.Body
+//	@Router			/goods/{good_id} [put]
 func (h *GoodHandler) UpdateGood(w http.ResponseWriter, r *http.Request) {
 	var good dto.Good
 	err := json.NewDecoder(r.Body).Decode(&good)
@@ -125,6 +168,17 @@ func (h *GoodHandler) UpdateGood(w http.ResponseWriter, r *http.Request) {
 	response.OKMessage(w, "Good has been updated")
 }
 
+// DeleteGoodByID docs
+//
+//	@Summary		Удаление товара по его айди
+//	@Tags			goods
+//	@Description	Удаление товара по его айди
+//	@ID				delete-good
+//	@Produce		json
+//	@Success		200	{object}	response.Body
+//	@Failure		400	{object}	response.Body
+//	@Failure		500	{object}	response.Body
+//	@Router			/goods/{good_id} [delete]
 func (h *GoodHandler) DeleteGoodByID(w http.ResponseWriter, r *http.Request) {
 	goodID := r.PathValue(goodIDKey)
 	if goodID == "" {
