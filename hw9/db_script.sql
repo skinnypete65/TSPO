@@ -78,18 +78,12 @@ CREATE TABLE "goods"(
     "good_id" UUID NOT NULL,
     "good_name" VARCHAR(255) NOT NULL,
     "price" BIGINT NOT NULL,
-    "measure_unit_id" UUID NOT NULL,
-    "description" UUID NOT NULL,
-    "stock_quantity" UUID NOT NULL
+    "measure_unit_id" VARCHAR(255) NOT NULL,
+    "description" TEXT NOT NULL,
+    "stock_quantity" BIGINT NOT NULL
 );
 ALTER TABLE
     "goods" ADD PRIMARY KEY("good_id");
-CREATE TABLE "measure_units"(
-    "measure_unit_id" UUID NOT NULL,
-    "measure_unit_name" VARCHAR(255) NOT NULL
-);
-ALTER TABLE
-    "measure_units" ADD PRIMARY KEY("measure_unit_id");
 ALTER TABLE
     "orders_goods" ADD CONSTRAINT "orders_goods_good_id_foreign" FOREIGN KEY("good_id") REFERENCES "goods"("good_id");
 ALTER TABLE
@@ -102,8 +96,6 @@ ALTER TABLE
     "orders" ADD CONSTRAINT "orders_payment_type_id_foreign" FOREIGN KEY("payment_type_id") REFERENCES "payment_types"("payment_type_id");
 ALTER TABLE
     "clients_addresses" ADD CONSTRAINT "clients_addresses_client_id_foreign" FOREIGN KEY("client_id") REFERENCES "clients"("client_id");
-ALTER TABLE
-    "goods" ADD CONSTRAINT "goods_measure_unit_id_foreign" FOREIGN KEY("measure_unit_id") REFERENCES "measure_units"("measure_unit_id");
 ALTER TABLE
     "clients_addresses" ADD CONSTRAINT "clients_addresses_address_id_foreign" FOREIGN KEY("address_id") REFERENCES "addresses"("address_id");
 ALTER TABLE
