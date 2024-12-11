@@ -89,7 +89,7 @@ func newServeMux(
 }
 
 func createGormDB() (*gorm.DB, error) {
-	dsn := "host=localhost user=user password=user dbname=ecom_db port=5440 sslmode=disable"
+	dsn := "host=postgres user=user password=user dbname=ecom_db port=5432 sslmode=disable"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return nil, err
