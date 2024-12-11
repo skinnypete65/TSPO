@@ -1,0 +1,342 @@
+definitions:
+  domain.Role:
+    enum:
+    - none
+    - admin
+    - user
+    type: string
+    x-enum-varnames:
+    - NoneRole
+    - DirectorRole
+    - ExpertRole
+  domain.Tokens:
+    properties:
+      accessToken:
+        type: string
+      refreshToken:
+        type: string
+    type: object
+  dto.Good:
+    properties:
+      desc:
+        type: string
+      id:
+        type: string
+      measure_unit:
+        enum:
+        - METER
+        - KILOGRAM
+        - LITER
+        - PIECE
+        type: string
+      name:
+        type: string
+      price:
+        type: integer
+      stock_quantity:
+        type: integer
+    required:
+    - desc
+    - measure_unit
+    - name
+    - price
+    type: object
+  dto.RefreshInput:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  dto.SignInInput:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  dto.SignInOutput:
+    properties:
+      accessToken:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+  dto.SignUpInput:
+    properties:
+      password:
+        type: string
+      role:
+        $ref: '#/definitions/domain.Role'
+      username:
+        type: string
+    required:
+    - password
+    - role
+    - username
+    type: object
+  response.Body:
+    properties:
+      message:
+        type: string
+    type: object
+  response.IDResponse:
+    properties:
+      id:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Обновление токенов
+      operationId: auth-refresh
+      parameters:
+      - description: Рефреш токен
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RefreshInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Tokens'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Body'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Body'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Body'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Body'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/response.Body'
+      summary: Обновление токенов
+      tags:
+      - auth
+  /auth/sign_in:
+    post:
+      consumes:
+      - application/json
+      description: Вход для всех пользователей по логину и паролю
+      operationId: auth-sign-in
+      parameters:
+      - description: Логин и пароль
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SignInInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SignInOutput'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Body'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Body'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Body'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Body'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/response.Body'
+      summary: Вход пользователей
+      tags:
+      - auth
+  /auth/sign_up:
+    post:
+      consumes:
+      - application/json
+      description: Регистрация пользователя по логину и паролю
+      operationId: auth-sign-up
+      parameters:
+      - description: Логин, пароль, роль
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SignUpInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Body'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Body'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Body'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.Body'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Body'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/response.Body'
+      summary: Регистрация пользователя
+      tags:
+      - auth
+  /goods:
+    get:
+      description: Возвращает список всех товаров
+      operationId: get-all-goods
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.Good'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Body'
+      summary: Получение списка товаров
+      tags:
+      - goods
+    post:
+      description: Добавление товара
+      operationId: add-good
+      parameters:
+      - description: Товар
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.Good'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.IDResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Body'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Body'
+      summary: Добавление товара
+      tags:
+      - goods
+  /goods/{good_id}:
+    delete:
+      description: Удаление товара по его айди
+      operationId: delete-good
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Body'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Body'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Body'
+      summary: Удаление товара по его айди
+      tags:
+      - goods
+    get:
+      description: Возвращает товар по его айди
+      operationId: get-good-by-id
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Good'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Body'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Body'
+      summary: Получение товара по его айди
+      tags:
+      - goods
+    put:
+      description: Обновление данных о товаре
+      operationId: update-good
+      parameters:
+      - description: Товар
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.Good'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Body'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Body'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Body'
+      summary: Обновление данных о товаре
+      tags:
+      - goods
+swagger: "2.0"

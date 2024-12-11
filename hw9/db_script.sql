@@ -1,7 +1,8 @@
 CREATE TABLE "users"(
     "user_id" UUID NOT NULL,
     "username" VARCHAR(255) NOT NULL,
-    "hash_pass" VARCHAR(255) NOT NULL
+    "hash_pass" VARCHAR(255) NOT NULL,
+    "user_role" VARCHAR(255) NOT NULL CHECK ( user_role IN ('admin', 'user', 'none') )
 );
 ALTER TABLE
     "users" ADD PRIMARY KEY("user_id");
@@ -78,7 +79,7 @@ CREATE TABLE "goods"(
     "good_id" UUID NOT NULL,
     "good_name" VARCHAR(255) NOT NULL,
     "price" BIGINT NOT NULL,
-    "measure_unit_id" VARCHAR(255) NOT NULL,
+    "measure_unit" VARCHAR(255) NOT NULL CHECK ( measure_unit in ('METER', 'KILOGRAM', 'LITER', 'PIECE') ),
     "description" TEXT NOT NULL,
     "stock_quantity" BIGINT NOT NULL
 );
