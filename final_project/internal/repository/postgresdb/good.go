@@ -2,6 +2,7 @@ package postgresdb
 
 import (
 	"context"
+	"log"
 
 	"ecom/internal/domain"
 	"ecom/internal/repository"
@@ -54,8 +55,18 @@ func (r *GoodPostgresRepo) AddGood(ctx context.Context, good domain.Good) (strin
 	return good.ID, nil
 }
 func (r *GoodPostgresRepo) UpdateGood(ctx context.Context, good domain.Good) error {
-	res := r.db.WithContext(ctx).Model(&domain.Good{}).Where("good_id = ?", good.ID).Updates(good)
-	return res.Error
+	tx := r.db.WithContext(ctx).Begin()
+
+	log.Println("Start update transaction")
+	err := tx.Model(&domain.Good{}).Where("good_id = ?", good.ID).Updates(good).Error
+	if err != nil {
+		log.Printf("Error happened: %v\nRollback transaction\n", err)
+		tx.Rollback()
+	} else {
+		log.Println("Transaction finished successfully")
+	}
+
+	return err
 }
 func (r *GoodPostgresRepo) DeleteGood(ctx context.Context, id string) error {
 	res := r.db.WithContext(ctx).Delete(&domain.Good{}, "good_id = ?", id)
