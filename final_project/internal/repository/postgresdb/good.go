@@ -18,9 +18,15 @@ func NewGoodPostgresRepo(
 	}
 }
 
-func (r *GoodPostgresRepo) GetAllGoods() ([]domain.Good, error) {
+func (r *GoodPostgresRepo) GetAllGoods(filters []domain.GormFilter) ([]domain.Good, error) {
 	var goods []domain.Good
-	err := r.db.Find(&goods).Error
+
+	curDB := r.db
+	for _, filter := range filters {
+		curDB = curDB.Where(filter.Query, filter.Params)
+	}
+
+	err := curDB.Find(&goods).Error
 	if err != nil {
 		return nil, err
 	}

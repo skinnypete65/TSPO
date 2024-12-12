@@ -21,6 +21,10 @@ const (
 	defaultLimit   = 10
 	pageKey        = "page"
 	limitKey       = "limit"
+	minPriceKey    = "min_price"
+	maxPriceKey    = "max_price"
+	minStockCntKey = "min_stock_cnt"
+	measureUnitKey = "measure_unit"
 	goodsTableName = "goods"
 )
 
@@ -56,19 +60,65 @@ func NewGoodHandler(
 //	@Failure		500	{object}	response.Body
 //	@Router			/goods [get]
 func (h *GoodHandler) GetAllGoods(w http.ResponseWriter, r *http.Request) {
-	page, err := h.parseQueryParam(r, pageKey, defaultPage)
+	page, err := h.parseQueryParamInt(r, pageKey, defaultPage)
 	if err != nil {
 		response.BadRequest(w, err.Error())
 		return
 	}
 
-	limit, err := h.parseQueryParam(r, limitKey, defaultLimit)
+	limit, err := h.parseQueryParamInt(r, limitKey, defaultLimit)
 	if err != nil {
 		response.BadRequest(w, err.Error())
 		return
 	}
 
-	goods, err := h.goodService.GetAllGoods()
+	filters := make([]domain.GormFilter, 0)
+
+	minPrice, err := h.parseQueryParamInt(r, minPriceKey, 0)
+	if err != nil {
+		response.BadRequest(w, err.Error())
+		return
+	}
+
+	if minPrice > 0 {
+		filters = append(filters, domain.GormFilter{
+			Query:  "price >= ?",
+			Params: []any{minPrice},
+		})
+	}
+
+	maxPrice, err := h.parseQueryParamInt(r, maxPriceKey, 0)
+	if err != nil {
+		response.BadRequest(w, err.Error())
+		return
+	}
+	if maxPrice > 0 {
+		filters = append(filters, domain.GormFilter{
+			Query:  "price <= ?",
+			Params: []any{maxPrice},
+		})
+	}
+
+	minStockCnt, err := h.parseQueryParamInt(r, minStockCntKey, 0)
+	if err != nil {
+		response.BadRequest(w, err.Error())
+		return
+	}
+	if minStockCnt > 0 {
+		filters = append(filters, domain.GormFilter{
+			Query:  "stock_quantity > ?",
+			Params: []any{minStockCnt},
+		})
+	}
+	measureUnit := r.URL.Query().Get(measureUnitKey)
+	if measureUnit != "" {
+		filters = append(filters, domain.GormFilter{
+			Query:  "measure_unit = ?",
+			Params: []any{measureUnit},
+		})
+	}
+
+	goods, err := h.goodService.GetAllGoods(filters)
 
 	if err != nil {
 		response.InternalServerError(w)
@@ -240,7 +290,7 @@ func (h *GoodHandler) DeleteGoodByID(w http.ResponseWriter, r *http.Request) {
 	response.OKMessage(w, "Good has been deleted")
 }
 
-func (h *GoodHandler) parseQueryParam(r *http.Request, key string, defaultValue int) (int, error) {
+func (h *GoodHandler) parseQueryParamInt(r *http.Request, key string, defaultValue int) (int, error) {
 	queryParam := r.URL.Query().Get(key)
 
 	if queryParam == "" {
