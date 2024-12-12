@@ -77,7 +77,3 @@ func IdResponse(w http.ResponseWriter, id string) {
 
 	WriteResponse(w, http.StatusOK, body)
 }
-
-func NotConfirmedError(w http.ResponseWriter) {
-	WriteMessage(w, http.StatusForbidden, "You are not confirmed")
-}

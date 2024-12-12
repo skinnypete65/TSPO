@@ -2,10 +2,13 @@ package service
 
 import (
 	"context"
+	"errors"
 
 	"ecom/internal/domain"
+	"ecom/internal/errs"
 	"ecom/internal/repository"
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type GoodService interface {
@@ -31,20 +34,37 @@ func (s *goodService) GetAllGoods(ctx context.Context, filters []domain.GormFilt
 }
 
 func (s *goodService) GetGoodByID(ctx context.Context, id string) (domain.Good, error) {
-	return s.goodRepo.GetGoodByID(ctx, id)
+	good, err := s.goodRepo.GetGoodByID(ctx, id)
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return domain.Good{}, errs.ErrGoodNotFound
+	}
+
+	return good, err
 }
 
 func (s *goodService) AddGood(ctx context.Context, good domain.Good) (string, error) {
 	id := uuid.New().String()
 	good.ID = id
 
-	return s.goodRepo.AddGood(ctx, good)
+	ansID, err := s.goodRepo.AddGood(ctx, good)
+
+	return ansID, err
 }
 
 func (s *goodService) UpdateGood(ctx context.Context, good domain.Good) error {
-	return s.goodRepo.UpdateGood(ctx, good)
+	err := s.goodRepo.UpdateGood(ctx, good)
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return errs.ErrGoodNotFound
+	}
+	return err
 }
 
 func (s *goodService) DeleteGood(ctx context.Context, id string) error {
-	return s.goodRepo.DeleteGood(ctx, id)
+	err := s.goodRepo.DeleteGood(ctx, id)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return errs.ErrGoodNotFound
+	}
+	return err
 }

@@ -182,7 +182,7 @@ func (h *GoodHandler) GetGoodByID(w http.ResponseWriter, r *http.Request) {
 	good, err := h.goodService.GetGoodByID(ctx, goodID)
 	if err != nil {
 		if errors.Is(err, errs.ErrGoodNotFound) {
-			response.BadRequest(w, err.Error())
+			response.NotFound(w, err.Error())
 			return
 		}
 
@@ -268,6 +268,10 @@ func (h *GoodHandler) UpdateGood(w http.ResponseWriter, r *http.Request) {
 
 	err = h.goodService.UpdateGood(ctx, h.goodConverter.MapRequestToDomain(good))
 	if err != nil {
+		if errors.Is(err, errs.ErrGoodNotFound) {
+			response.NotFound(w, err.Error())
+			return
+		}
 		response.InternalServerError(w)
 		return
 	}
@@ -299,7 +303,7 @@ func (h *GoodHandler) DeleteGoodByID(w http.ResponseWriter, r *http.Request) {
 	err := h.goodService.DeleteGood(ctx, goodID)
 	if err != nil {
 		if errors.Is(err, errs.ErrGoodNotFound) {
-			response.BadRequest(w, err.Error())
+			response.NotFound(w, err.Error())
 			return
 		}
 
