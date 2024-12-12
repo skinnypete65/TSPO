@@ -1,6 +1,8 @@
 package postgresdb
 
 import (
+	"context"
+
 	"ecom/internal/domain"
 	"ecom/internal/repository"
 	"gorm.io/gorm"
@@ -18,44 +20,44 @@ func NewGoodPostgresRepo(
 	}
 }
 
-func (r *GoodPostgresRepo) GetAllGoods(filters []domain.GormFilter, ordersStr string) ([]domain.Good, error) {
+func (r *GoodPostgresRepo) GetAllGoods(ctx context.Context, filters []domain.GormFilter, ordersStr string) ([]domain.Good, error) {
 	var goods []domain.Good
 
-	curDB := r.db
+	tx := r.db.WithContext(ctx)
 	for _, filter := range filters {
-		curDB = curDB.Where(filter.Query, filter.Params)
+		tx = tx.Where(filter.Query, filter.Params)
 	}
 
 	if ordersStr != "" {
-		curDB.Order(ordersStr)
+		tx.Order(ordersStr)
 	}
-	err := curDB.Find(&goods).Error
+	err := tx.Find(&goods).Error
 	if err != nil {
 		return nil, err
 	}
 	return goods, nil
 }
 
-func (r *GoodPostgresRepo) GetGoodByID(id string) (domain.Good, error) {
+func (r *GoodPostgresRepo) GetGoodByID(ctx context.Context, id string) (domain.Good, error) {
 	var good domain.Good
-	res := r.db.First(&good, "good_id = ?", id)
+	res := r.db.WithContext(ctx).First(&good, "good_id = ?", id)
 	if res.Error != nil {
 		return domain.Good{}, res.Error
 	}
 	return good, nil
 }
-func (r *GoodPostgresRepo) AddGood(good domain.Good) (string, error) {
-	err := r.db.Create(&good).Error
+func (r *GoodPostgresRepo) AddGood(ctx context.Context, good domain.Good) (string, error) {
+	err := r.db.WithContext(ctx).Create(&good).Error
 	if err != nil {
 		return "", err
 	}
 	return good.ID, nil
 }
-func (r *GoodPostgresRepo) UpdateGood(good domain.Good) error {
-	res := r.db.Model(&domain.Good{}).Where("good_id = ?", good.ID).Updates(good)
+func (r *GoodPostgresRepo) UpdateGood(ctx context.Context, good domain.Good) error {
+	res := r.db.WithContext(ctx).Model(&domain.Good{}).Where("good_id = ?", good.ID).Updates(good)
 	return res.Error
 }
-func (r *GoodPostgresRepo) DeleteGood(id string) error {
-	res := r.db.Delete(&domain.Good{}, "good_id = ?", id)
+func (r *GoodPostgresRepo) DeleteGood(ctx context.Context, id string) error {
+	res := r.db.WithContext(ctx).Delete(&domain.Good{}, "good_id = ?", id)
 	return res.Error
 }

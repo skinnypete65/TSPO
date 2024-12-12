@@ -1,10 +1,12 @@
 package rest
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
 	"strconv"
+	"time"
 
 	"ecom/internal/converter"
 	"ecom/internal/domain"
@@ -120,7 +122,11 @@ func (h *GoodHandler) GetAllGoods(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ordersStr := r.URL.Query().Get(sortKey)
-	goods, err := h.goodService.GetAllGoods(filters, ordersStr)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	goods, err := h.goodService.GetAllGoods(ctx, filters, ordersStr)
 
 	if err != nil {
 		response.InternalServerError(w)
@@ -170,7 +176,10 @@ func (h *GoodHandler) GetGoodByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	good, err := h.goodService.GetGoodByID(goodID)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	good, err := h.goodService.GetGoodByID(ctx, goodID)
 	if err != nil {
 		if errors.Is(err, errs.ErrGoodNotFound) {
 			response.BadRequest(w, err.Error())
@@ -216,7 +225,10 @@ func (h *GoodHandler) AddGood(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := h.goodService.AddGood(h.goodConverter.MapRequestToDomain(good))
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	id, err := h.goodService.AddGood(ctx, h.goodConverter.MapRequestToDomain(good))
 	if err != nil {
 		response.InternalServerError(w)
 		return
@@ -251,7 +263,10 @@ func (h *GoodHandler) UpdateGood(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.goodService.UpdateGood(h.goodConverter.MapRequestToDomain(good))
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err = h.goodService.UpdateGood(ctx, h.goodConverter.MapRequestToDomain(good))
 	if err != nil {
 		response.InternalServerError(w)
 		return
@@ -278,7 +293,10 @@ func (h *GoodHandler) DeleteGoodByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.goodService.DeleteGood(goodID)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := h.goodService.DeleteGood(ctx, goodID)
 	if err != nil {
 		if errors.Is(err, errs.ErrGoodNotFound) {
 			response.BadRequest(w, err.Error())

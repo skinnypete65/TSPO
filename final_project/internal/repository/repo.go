@@ -1,13 +1,17 @@
 package repository
 
-import "ecom/internal/domain"
+import (
+	"context"
+
+	"ecom/internal/domain"
+)
 
 type GoodRepo interface {
-	GetAllGoods(filters []domain.GormFilter, ordersStr string) ([]domain.Good, error)
-	GetGoodByID(id string) (domain.Good, error)
-	AddGood(good domain.Good) (string, error)
-	UpdateGood(good domain.Good) error
-	DeleteGood(id string) error
+	GetAllGoods(ctx context.Context, filters []domain.GormFilter, ordersStr string) ([]domain.Good, error)
+	GetGoodByID(ctx context.Context, id string) (domain.Good, error)
+	AddGood(ctx context.Context, good domain.Good) (string, error)
+	UpdateGood(ctx context.Context, good domain.Good) error
+	DeleteGood(ctx context.Context, id string) error
 }
 
 type AuthRepo interface {
