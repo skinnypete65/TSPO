@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"strconv"
 
 	"ecom/internal/converter"
+	"ecom/internal/domain"
 	"ecom/internal/errs"
 	"ecom/internal/response"
 	"ecom/internal/service"
@@ -14,24 +16,32 @@ import (
 )
 
 const (
-	goodIDKey = "good_id"
+	goodIDKey      = "good_id"
+	defaultPage    = 1
+	defaultLimit   = 10
+	pageKey        = "page"
+	limitKey       = "limit"
+	goodsTableName = "goods"
 )
 
 type GoodHandler struct {
-	goodService   service.GoodService
-	goodConverter converter.GoodConverter
-	validate      *validator.Validate
+	goodService       service.GoodService
+	paginationService service.PaginationService
+	goodConverter     converter.GoodConverter
+	validate          *validator.Validate
 }
 
 func NewGoodHandler(
 	goodService service.GoodService,
+	paginationService service.PaginationService,
 	goodConverter converter.GoodConverter,
 	validate *validator.Validate,
 ) *GoodHandler {
 	return &GoodHandler{
-		goodService:   goodService,
-		goodConverter: goodConverter,
-		validate:      validate,
+		goodService:       goodService,
+		paginationService: paginationService,
+		goodConverter:     goodConverter,
+		validate:          validate,
 	}
 }
 
@@ -46,6 +56,18 @@ func NewGoodHandler(
 //	@Failure		500	{object}	response.Body
 //	@Router			/goods [get]
 func (h *GoodHandler) GetAllGoods(w http.ResponseWriter, r *http.Request) {
+	page, err := h.parseQueryParam(r, pageKey, defaultPage)
+	if err != nil {
+		response.BadRequest(w, err.Error())
+		return
+	}
+
+	limit, err := h.parseQueryParam(r, limitKey, defaultLimit)
+	if err != nil {
+		response.BadRequest(w, err.Error())
+		return
+	}
+
 	goods, err := h.goodService.GetAllGoods()
 
 	if err != nil {
@@ -53,7 +75,23 @@ func (h *GoodHandler) GetAllGoods(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	goodsBytes, err := json.Marshal(h.goodConverter.MapDomainsToDtos(goods))
+	paginationParams := domain.PaginationParams{
+		Page:  page,
+		Limit: limit,
+	}
+
+	pagination, err := h.paginationService.GetPaginationInfo(goodsTableName, paginationParams)
+	if err != nil {
+		response.InternalServerError(w)
+		return
+	}
+
+	goodsInfo := dto.GoodsInfo{
+		Goods:      h.goodConverter.MapDomainsToDtos(goods),
+		Pagination: pagination,
+	}
+
+	goodsBytes, err := json.Marshal(goodsInfo)
 	if err != nil {
 		response.InternalServerError(w)
 		return
@@ -200,4 +238,23 @@ func (h *GoodHandler) DeleteGoodByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response.OKMessage(w, "Good has been deleted")
+}
+
+func (h *GoodHandler) parseQueryParam(r *http.Request, key string, defaultValue int) (int, error) {
+	queryParam := r.URL.Query().Get(key)
+
+	if queryParam == "" {
+		return defaultValue, nil
+	}
+
+	param, err := strconv.Atoi(queryParam)
+	if err != nil {
+		return 0, err
+	}
+
+	if param == 0 {
+		return defaultValue, nil
+	}
+	return param, nil
+
 }

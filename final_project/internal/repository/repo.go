@@ -15,3 +15,7 @@ type AuthRepo interface {
 	InsertUser(user domain.UserInfo) error
 	GetUserByUserName(username string) (domain.UserInfo, error)
 }
+
+type PaginationRepo interface {
+	GetRecordsCount(table string) (int, error)
+}

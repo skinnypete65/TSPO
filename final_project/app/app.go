@@ -41,7 +41,10 @@ func Run() {
 	authRepo := postgresdb.NewAuthRepoPostgres(db)
 	authService := service.NewAuthService(authRepo, hasher, tokenManager)
 
-	goodHandler := rest.NewGoodHandler(goodService, goodConverter, validate)
+	paginationRepo := postgresdb.NewPaginationRepoPostgres(db)
+	paginationService := service.NewPaginationService(paginationRepo)
+
+	goodHandler := rest.NewGoodHandler(goodService, paginationService, goodConverter, validate)
 	authHandler := rest.NewAuthHandler(authService, validate)
 	authMiddleware := middleware.NewAuthMiddleware(tokenManager)
 

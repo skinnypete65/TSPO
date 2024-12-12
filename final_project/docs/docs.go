@@ -399,8 +399,8 @@ const docTemplate = `{
             ],
             "x-enum-varnames": [
                 "NoneRole",
-                "DirectorRole",
-                "ExpertRole"
+                "AdminRole",
+                "UserRole"
             ]
         },
         "domain.Tokens": {
