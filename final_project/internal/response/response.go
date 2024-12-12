@@ -66,6 +66,11 @@ func Unauthorized(w http.ResponseWriter) {
 	WriteMessage(w, http.StatusUnauthorized, "Unauthorized")
 }
 
+func Forbidden(w http.ResponseWriter) {
+	w.Header().Set("WWW-Authenticate", `Basic realm="restricted", charset="UTF-8"`)
+	WriteMessage(w, http.StatusForbidden, "Forbidden")
+}
+
 func IdResponse(w http.ResponseWriter, id string) {
 	respBody := IDResponse{ID: id}
 	body, err := json.Marshal(respBody)

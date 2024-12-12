@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"ecom/internal/domain"
 	"ecom/internal/response"
 	"ecom/internal/tokens"
 )
@@ -34,6 +35,34 @@ func (h *AuthMiddleware) CheckAuth(next http.Handler) http.Handler {
 
 		if err != nil {
 			response.Unauthorized(w)
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), TokenInfoKey, tokenInfo)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+func (h *AuthMiddleware) CheckRole(next http.Handler, roles ...domain.Role) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		authHeader := r.Header.Get(authorizationHeader)
+		tokenInfo, err := h.parseAuthHeader(authHeader)
+
+		if err != nil {
+			response.Unauthorized(w)
+			return
+		}
+
+		hasPermission := false
+		for _, role := range roles {
+			if tokenInfo.UserRole == role {
+				hasPermission = true
+				break
+			}
+		}
+
+		if !hasPermission {
+			response.Forbidden(w)
 			return
 		}
 

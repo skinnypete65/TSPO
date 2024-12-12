@@ -7,6 +7,7 @@ import (
 
 	"ecom/internal/apicollector"
 	"ecom/internal/converter"
+	"ecom/internal/domain"
 	"ecom/internal/repository/postgresdb"
 	"ecom/internal/service"
 	"ecom/internal/tokens"
@@ -85,20 +86,23 @@ func newServeMux(
 			http.HandlerFunc(goodHandler.GetGoodByID),
 		),
 	))
-	mux.Handle("POST /goods", authMiddleware.CheckAuth(
+	mux.Handle("POST /goods", authMiddleware.CheckRole(
 		apiCollectorMiddleware.CollectInfo(
 			http.HandlerFunc(goodHandler.AddGood),
 		),
+		domain.AdminRole,
 	))
-	mux.Handle("PUT /goods/{good_id}", authMiddleware.CheckAuth(
+	mux.Handle("PUT /goods/{good_id}", authMiddleware.CheckRole(
 		apiCollectorMiddleware.CollectInfo(
 			http.HandlerFunc(goodHandler.UpdateGood),
 		),
+		domain.AdminRole,
 	))
-	mux.Handle("DELETE /goods/{good_id}", authMiddleware.CheckAuth(
+	mux.Handle("DELETE /goods/{good_id}", authMiddleware.CheckRole(
 		apiCollectorMiddleware.CollectInfo(
 			http.HandlerFunc(goodHandler.DeleteGoodByID),
 		),
+		domain.AdminRole,
 	))
 
 	mux.Handle("POST /auth/sign_up", apiCollectorMiddleware.CollectInfo(
