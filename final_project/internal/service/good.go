@@ -7,7 +7,7 @@ import (
 )
 
 type GoodService interface {
-	GetAllGoods(filters []domain.GormFilter) ([]domain.Good, error)
+	GetAllGoods(filters []domain.GormFilter, ordersStr string) ([]domain.Good, error)
 	GetGoodByID(id string) (domain.Good, error)
 	AddGood(good domain.Good) (string, error)
 	UpdateGood(good domain.Good) error
@@ -24,8 +24,8 @@ func NewGoodService(goodRepo repository.GoodRepo) GoodService {
 	}
 }
 
-func (s *goodService) GetAllGoods(filters []domain.GormFilter) ([]domain.Good, error) {
-	return s.goodRepo.GetAllGoods(filters)
+func (s *goodService) GetAllGoods(filters []domain.GormFilter, ordersStr string) ([]domain.Good, error) {
+	return s.goodRepo.GetAllGoods(filters, ordersStr)
 }
 
 func (s *goodService) GetGoodByID(id string) (domain.Good, error) {

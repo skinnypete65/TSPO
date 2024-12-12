@@ -3,7 +3,7 @@ package repository
 import "ecom/internal/domain"
 
 type GoodRepo interface {
-	GetAllGoods(filters []domain.GormFilter) ([]domain.Good, error)
+	GetAllGoods(filters []domain.GormFilter, ordersStr string) ([]domain.Good, error)
 	GetGoodByID(id string) (domain.Good, error)
 	AddGood(good domain.Good) (string, error)
 	UpdateGood(good domain.Good) error

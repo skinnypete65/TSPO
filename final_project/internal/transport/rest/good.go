@@ -25,6 +25,7 @@ const (
 	maxPriceKey    = "max_price"
 	minStockCntKey = "min_stock_cnt"
 	measureUnitKey = "measure_unit"
+	sortKey        = "sort"
 	goodsTableName = "goods"
 )
 
@@ -118,7 +119,8 @@ func (h *GoodHandler) GetAllGoods(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	goods, err := h.goodService.GetAllGoods(filters)
+	ordersStr := r.URL.Query().Get(sortKey)
+	goods, err := h.goodService.GetAllGoods(filters, ordersStr)
 
 	if err != nil {
 		response.InternalServerError(w)
